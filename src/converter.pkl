@@ -1,1 +1,8 @@
-import 
+import "pkl:json"
+
+file = read("file:aniversario.json")
+parsed = new json.Parser {}.parse(file)
+
+output {
+    value = parsed
+}
