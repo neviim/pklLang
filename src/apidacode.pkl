@@ -1,0 +1,406 @@
+name = "Testa codeChat"
+nodes {
+  new {
+    parameters {}
+    id = "894d8ae0-37f3-40ff-a8b1-abc5d28ca0fa"
+    name = "When clicking \"Execute Workflow\""
+    type = "n8n-nodes-base.manualTrigger"
+    typeVersion = 1
+    position {
+      20
+      360
+    }
+  }
+  new {
+    parameters {
+      httpMethod = "POST"
+      path = "f21c9cbb-f530-4172-988f-cdc315104fc3"
+      options {}
+    }
+    id = "73499e9c-86bd-4281-a2aa-4f4fecc5f5fb"
+    name = "Webhook"
+    type = "n8n-nodes-base.webhook"
+    typeVersion = 1
+    position {
+      20
+      680
+    }
+    webhookId = "f21c9cbb-f530-4172-988f-cdc315104fc3"
+  }
+  new {
+    parameters {
+      jsCode = """
+        for (const item of $input.all()) {
+          if(item.json.body?.data?.message) {
+            const keys = Object.keys(item.json.body?.data?.message);
+            let messagetype;
+            for (const k of keys) {
+              if(k !== 'messageContextInfo') {
+                messagetype = k;
+                break;
+              }
+            }
+        
+            item.json.body.data.message['type'] = messagetype;
+          }
+        }
+        
+        return $input.all();
+        """
+    }
+    id = "7473606a-03be-4a47-be65-d1739be100d0"
+    name = "Code"
+    type = "n8n-nodes-base.code"
+    typeVersion = 1
+    position {
+      300
+      680
+    }
+  }
+  new {
+    parameters {
+      content = """
+        ## CodeChat - WhatsApp Api 
+        **Api:** https://github.com/code-chat-br/whatsapp-api
+        **node:** https://github.com/jrCleber/n8n-codechat-wapi#readme
+        """
+      height = 109.53027243998983
+      width = 610.3779366700719
+    }
+    id = "3bd6dec8-778c-4722-8f44-785e0d673604"
+    name = "Sticky Note"
+    type = "n8n-nodes-base.stickyNote"
+    typeVersion = 1
+    position {
+      -60
+      140
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      textProperty = "={{ $json[\"textMessage\"][\"text\"] }}"
+    }
+    id = "df30ac23-3934-43b9-9db4-65eea46212c5"
+    name = "Send Text"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      720
+      500
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      operation = "contactMessage"
+      contactsProperty = "={{ $json[\"contactMessage\"] }}"
+    }
+    id = "2c3f64c2-6c8d-4183-967c-568e67975f7c"
+    name = "Send Contact"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      1060
+      120
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      operation = "listMessage"
+      titleProperty = "={{ $json[\"listMessage\"][\"title\"] }}"
+      descriptionProperty = "={{ $json[\"listMessage\"][\"description\"] }}"
+      buttonTextProperty = "={{ $json[\"listMessage\"][\"buttonText\"] }}"
+      footerTextProperty = "={{ $json[\"listMessage\"][\"footerText\"] }}"
+      sectionProperty = "={{ $json[\"listMessage\"][\"sections\"] }}"
+    }
+    id = "f80a1dfa-9d8d-450c-8ecb-446ace6caec3"
+    name = "Send List"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      1060
+      300
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      operation = "locationMessage"
+      locationNameProperty = "={{ $json[\"locationMessage\"][\"name\"] }}"
+      addressProperty = "={{ $json[\"locationMessage\"][\"address\"] }}"
+      latitudeProperty = "={{ $json[\"locationMessage\"][\"latitude\"] }}"
+      longitudeProperty = "={{ $json[\"locationMessage\"][\"longitude\"] }}"
+    }
+    id = "3937c31e-b33e-438d-b76f-76193d0bd5d2"
+    name = "Send Location"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      1060
+      480
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      operation = "buttonMessage"
+      titleProperty = "={{ $json[\"buttonMessage\"][\"title\"] }}"
+      descriptionProperty = "={{ $json[\"buttonMessage\"][\"description\"] }}"
+      footerTextProperty = "={{ $json[\"buttonMessage\"][\"footerText\"] }}"
+      buttonsProperty = "={{ $json[\"buttonMessage\"][\"buttons\"] }}"
+      mediaMessageProperty {
+        mediaProperty {
+          fileNameProperty = "={{ $json[\"mediaMessage\"][\"fileName\"] }}"
+          mediaProperty = "={{ $json[\"mediaMessage\"][\"media\"] }}"
+        }
+      }
+    }
+    id = "193c739e-b022-4d42-b0ab-51a0dc7cd310"
+    name = "Send Buttons"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      1060
+      660
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      operation = "mediaMessage"
+      fileNameProperty = "={{ $json[\"mediaMessage\"][\"fileName\"] }}"
+      caprionProperty = "={{ $json[\"mediaMessage\"][\"caption\"] }}"
+      mediaProperty = "={{ $json[\"mediaMessage\"][\"media\"] }}"
+    }
+    id = "1cf900b7-271e-4fb0-affe-3b423020330e"
+    name = "Send Media"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      720
+      320
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      number = "={{ $json[\"number\"] }}"
+      dalay = "={{ $json[\"options\"][\"delay\"] }}"
+      presence = "recording"
+      operation = "mediaMessage"
+      mediaType = "waAudio"
+      mediaProperty = "={{ $json[\"audioMessage\"][\"audio\"] }}"
+    }
+    id = "a292bf4b-9e0e-49ae-87cb-0e1a172de3bf"
+    name = "Send WhatsApp Audio"
+    type = "n8n-nodes-codechat-wapi.CodeChatApi"
+    typeVersion = 1
+    position {
+      720
+      140
+    }
+    credentials {
+      codeChatCredsApi {
+        id = "3"
+        name = "CodeChat Creds"
+      }
+    }
+  }
+  new {
+    parameters {
+      content = """
+        ## Node Media
+        
+        Realiza o envio geral de mídias.
+        
+        Foi adicionado uma nova opção no **Media Type**: tipo **WhatsApp Audio**. Esse tipo simula a gravação do áudio no whatsapp.
+        
+        ───────────────────────────────────────────────────────────────────────
+        
+        Performs general media delivery.
+        
+        Added a new option in **Media Type**: type **WhatsApp Audio**. This type simulates audio recording in whatsapp.
+        """
+      height = 681.865313251202
+      width = 388.96392822265625
+    }
+    id = "2b37f9cc-84ed-4147-a00f-85548d929b29"
+    name = "Sticky Note1"
+    type = "n8n-nodes-base.stickyNote"
+    typeVersion = 1
+    position {
+      1320
+      120
+    }
+  }
+}
+pinData {
+  `On clicking 'execute'` {
+    new {
+      json {
+        number = "5531900000000"
+        options {
+          delay = 1200
+          presence = "unavailable | available | compising | recording | paused"
+        }
+        textMessage {
+          text = "ok"
+        }
+        mediaMessage {
+          mediatype = "image | document | video | audio"
+          fileName = "image.png"
+          caption = "Description"
+          media = "https://www.moongiant.com/monthlycombined/images/october-fb.jpg"
+        }
+        buttonMessage {
+          title = "Tutle Button"
+          description = "Description Button"
+          footerText = "Footer Button"
+          buttons {
+            new {
+              buttonText = "Click here 1"
+              buttonId = "1"
+            }
+            new {
+              buttonText = "Click here 2"
+              buttonId = "2"
+            }
+          }
+        }
+        locationMessage {
+          name = "Moeda - MG"
+          address = "🗺️ Moeda 🗺️"
+          latitude = -20.32568196333534
+          longitude = -44.016271276581236
+        }
+        listMessage {
+          title = "List Title"
+          description = "List description"
+          buttonText = "Click Here"
+          footerText = """
+            footer list
+            https://examplelink.com.br
+            """
+          sections {
+            new {
+              title = "Row tilte 01"
+              rows {
+                new {
+                  title = "Title row 01"
+                  description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+                  rowId = "rowId 001"
+                }
+                new {
+                  title = "Title row 02"
+                  description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+                  rowId = "rowId 002"
+                }
+              }
+            }
+            new {
+              title = "Row tilte 02"
+              rows {
+                new {
+                  title = "Title row 01"
+                  description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+                  rowId = "rowId 001"
+                }
+                new {
+                  title = "Title row 02"
+                  description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+                  rowId = "rowId 002"
+                }
+              }
+            }
+          }
+        }
+        contactMessage {
+          new {
+            fullName = "Contact Name 1"
+            wuid = "553198882221"
+            phoneNumber = "+55 31 9 8888-2221"
+          }
+          new {
+            fullName = "Contact Name 2"
+            wuid = "5531988882222"
+            phoneNumber = "+55 31 9 8888-2222"
+          }
+          new {
+            fullName = "Contact Name 3"
+            wuid = "5531988882223"
+            phoneNumber = "+55 31 9 8888-2223"
+          }
+        }
+        audioMessage {
+          audio = "https://lp.naturefarm.site/wp-content/uploads/2023/01/WhatsApp-Ptt-2022-12-05-at-13.00.53.ogg"
+        }
+      }
+    }
+  }
+}
+connections {
+  Webhook {
+    main {
+      new {
+        new {
+          node = "Code"
+          type = "main"
+          index = 0
+        }
+      }
+    }
+  }
+}
+active = false
+settings {
+  executionOrder = "v1"
+}
+versionId = "b7cd5f20-6ca0-4ed3-bb95-6b30ff00120d"
+id = "eH7y7PhwbJwBXvyy"
+meta {
+  instanceId = "6bac82aad386aed78fe72365216a3c801a52d23201d73455bd65de9717837590"
+}
+tags {}
